@@ -1,0 +1,21 @@
+{
+  "name": "next-magic-todo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "./node_modules/next/dist/bin/next dev",
+    "build": "./node_modules/next/dist/bin/next build",
+    "start": "./node_modules/next/dist/bin/next start"
+  },
+  "dependencies": {
+    "@hapi/iron": "^6.0.0",
+    "@magic-sdk/admin": "^1.2.2",
+    "@zeit/next-css": "^1.0.1",
+    "cookie": "^0.4.1",
+    "magic-sdk": "^2.0.2",
+    "mongoose": "^5.9.18",
+    "next": "9.4.4",
+    "react": "16.13.1",
+    "react-dom": "16.13.1"
+  }
+}
