@@ -1,4 +1,4 @@
-import { Magic } from "@magic-sdk/admin";
+import { magic } from "../../../utils/magic";
 import { encryptCookie, cookie } from "../../../utils/cookie";
 import { serialize } from "cookie";
 import User from "../../../models/User";
@@ -7,15 +7,11 @@ import dbConnect from "../../../models/connection";
 /* open connection to database */
 dbConnect();
 
-/* initiate Magic instance */
-const magic = new Magic(process.env.MAGIC_SECRET_KEY);
-
 /* save new user to database */
-const signup = async (user, iat) => {
+const signup = async (user) => {
   let newUser = {
     email: user.email,
     issuer: user.issuer,
-    lastLoginAt: iat
   };
   return await new User(newUser).save();
 };
@@ -66,7 +62,7 @@ export default async (req, res) => {
   const existingUser = await User.findOne({ issuer: claim.iss });
 
   /* Create new user if doesn't exist */
-  !existingUser && signup(userMetadata, claim.iat);
+  !existingUser && signup(userMetadata);
 
   /* encrypted cookie details */
   const token = await encryptCookie(userMetadata);
