@@ -30,7 +30,7 @@ MAGIC_SECRET_KEY=your_magic_secret_key
 
 ### Introduction
 
-This tutorial will give a short overview of how to build a To Do list app using Next.js, with authentication from Magic, using MongoDB as the database. A user will be able to sign up, create a task, mark it as completed, and delete it. At the end, you can deploy the application with Vercel. For brevity, much of this is pseudocode.
+This tutorial will give a short overview of how to build a To Do list app using Next.js, with authentication from Magic, using MongoDB as the database. A user will be able to sign up, create a task, mark it as completed, and delete it. At the end, you can deploy the application with Vercel. For brevity, some of this is pseudocode.
 
 ### Building the Application
 
@@ -156,7 +156,7 @@ const Login = () => {
       {isLoading ? ( // if fetching data, show a loading symbol
         <img src="/loading.gif" />
       ) : loggedIn ? ( // If the user is logged in
-        <>You're already logged in!</>
+        <div>You're already logged in!</div>
       ) : (
         <form>{/* form for user to enter email */}</form>
       )}
@@ -233,7 +233,7 @@ export default async (req, res) => {
 
 ### Is User Authorized
 
-We are also going to create an enpoint `pages/api/user` where our frontend can check if the current user is authorized. We simply check the validity of the auth cookie, if it exists.
+We are also going to create an enpoint `pages/api/user` where our frontend can check if the current user is authorized.
 
 ```javascript
 // pages/api/user/index.js
@@ -262,7 +262,7 @@ export default async (req, res) => {
 
 ### Logout
 
-`pages/api/user/logout.js` overrides the current auth cookie with one that's expired essentially clearing it out. It also ensures the user is logged out of their session with Magic.
+`pages/api/user/logout.js` overrides the current auth cookie with one that's expired, essentially clearing it out. It also ensures the user is logged out of their session with Magic.
 
 ```javascript
 // pages/api/user/logout.js
