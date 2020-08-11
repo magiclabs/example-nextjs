@@ -43,8 +43,6 @@ $ npm install magic-sdk @magic-sdk/admin cookie mongoose @zeit/next-css @hapi/ir
 $ yarn dev // starts the app on localhost:3000
 ```
 
-- You can delete `public/vercel.svg` & `pages/api/hello.js` since we don't need them. Also clear contents from `pages/index.js`.
-
 ### Global State
 
 `components/Store.js` will contain our application's global state. Variables defined here can be accessed by components any level down through the use of React's Context API.
