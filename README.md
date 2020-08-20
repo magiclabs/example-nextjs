@@ -6,10 +6,16 @@ Live at https://next-magic-todo.vercel.app
 
 ```
 $ git clone <repo>
+
 $ cd <repo_folder_name>
+
 $ npm i
-$ touch .env.local // will contain your environment variables
-$ yarn dev // go to localhost:3000 to see your app
+
+// will contain your environment variables
+$ touch .env.local
+
+// go to localhost:3000 to see your app
+$ yarn dev
 ```
 
 #### Environment Variables
@@ -30,77 +36,25 @@ MAGIC_SECRET_KEY=your_magic_secret_key
 
 ### Introduction
 
-This tutorial will give a short overview of how to build a To Do list app using Next.js, with authentication from Magic, using MongoDB as the database. A user will be able to sign up, create a task, mark it as completed, and delete it. At the end, you can deploy the application with Vercel. For brevity, some of this is pseudocode.
+This tutorial will give a brief overview of how to integrate Magic into a Next.js application, using MongoDB as the database.
 
 ### Building the Application
 
 ```
 $ npx create-next-app magic-todo-list
+
 $ cd magic-todo-list
-$ mkdir components css utils models // create the folder structure we'll need
-$ touch .env.local // will hold our environment variables
-$ npm install magic-sdk @magic-sdk/admin cookie mongoose @zeit/next-css @hapi/iron // install dependencies
-$ yarn dev // starts the app on localhost:3000
-```
 
-### Global State
+// create the folder structure we'll need
+$ mkdir components css utils models
 
-`components/Store.js` will contain our application's global state. Variables defined here can be accessed by components any level down through the use of React's Context API.
+// will hold our environment variables
+$ touch .env.local
 
-```javascript
-// components/Store.js
-import { createContext, useState, useEffect } from "react";
-import { Magic } from "magic-sdk";
-import Layout from "./Layout";
+$ npm install magic-sdk @magic-sdk/admin cookie mongoose @zeit/next-css @hapi/iron
 
-/* initializing context API values */
-export const MagicContext = createContext();
-export const LoggedInContext = createContext();
-export const LoadingContext = createContext();
-
-const Store = ({ children }) => {
-  const [magic, setMagic] = useState();
-  const [loggedIn, setLoggedIn] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    (async () => {
-      setIsLoading(true);
-
-      /* We initialize Magic inside `useEffect` because it needs access to the global `window` object inside the browser */
-      let m = new Magic(process.env.NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY);
-      await setMagic(m);
-
-      /* On page refresh, send a request to /api/user to see if there's a valid user session */
-      let res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/user`);
-      let data = await res.json();
-
-      /* If the user has a valid session with our server, it will return {authorized: true, user: user} */
-      let loggedIn = data.authorized ? data.user : false;
-
-      /* If db returns { authorized: false }, there is no valid session, so we log user out of their session with Magic if it exists */
-      !loggedIn && magic && magic.user.logout();
-
-      await setLoggedIn(loggedIn.email);
-
-      setIsLoading(false);
-    })();
-  }, []);
-
-  return (
-    // `children` (passed as props in this file) represents the component nested inside < Store / > in `/pages/index.js` and `/pages/login.js`
-    <LoggedInContext.Provider value={[loggedIn, setLoggedIn]}>
-      <MagicContext.Provider value={[magic]}>
-        <LoadingContext.Provider value={[isLoading, setIsLoading]}>
-          <Layout />
-          {children}
-        </LoadingContext.Provider>
-      </MagicContext.Provider>
-    </LoggedInContext.Provider>
-  );
-};
-
-export default Store;
+// starts the app on localhost:3000
+$ yarn dev
 ```
 
 ### Login
