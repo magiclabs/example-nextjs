@@ -94,6 +94,8 @@ const Login = () => {
         Authorization: "Bearer " + DIDT,
       }),
     });
+    
+    let data = await res.json();
 
     /* If the user is authorized, return an object containing the user properties (issuer, publicAddress, email) */
     /* Else, the login was not successful and return false */
