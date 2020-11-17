@@ -30,7 +30,7 @@ export default async (req, res) => {
   }
 
   /* log use out of Magic */
-  await magic.users.logoutByToken(userFromCookie.publicAddress);
+  await magic.users.logoutByPublicAddress(userFromCookie.publicAddress);
 
   return res.json({ authorized: false });
 };
