@@ -141,7 +141,7 @@ const finishEmailRedirectLogin = async () => {
 };
 ```
 
-##### Server-side
+### Server-side
 
 On our backend, inside `/api/login`, we verify the DID token, create a JWT, then set it inside a cookie. On subsequent requests to the server, to check if the user is already authenticated for example, all we have to do is verify the JWT to know if the user has already been authenticated, and is authorized.
 
@@ -163,7 +163,7 @@ export default async function login(req, res) {
 }
 ```
 
-##### Persisting Sessions
+### Persisting Sessions
 
 To make sessions persist, we rely on the JWT that’s stored in a cookie and automatically sent on each request to our server. The endpoint we set up for this is `/api/user`. Leveraging Vercel’s SWR (stale while revalidate), we send a request to our server with the JWT which verifies the authenticity of the token, and as long as we get a user returned, we know it’s valid and to keep the user logged in.
 
@@ -196,7 +196,7 @@ export function useUser({ redirectTo, redirectIfFound } = {}) {
 }
 ```
 
-##### Logout
+### Logout
 
 To complete the authentication, we need to allow users to log out. In `/api/logout` we use Magic’s admin-sdk method to clear the cookie containing the JWT and log the user out of their session with Magic.
 
@@ -215,6 +215,6 @@ export default async function logout(req, res) {
 }
 ```
 
-##### Conclusion
+### Conclusion
 
-At this point, we have a working app with authentication and session management through JWTs. The developer is able to control how long users stay logged in for, just by editing the cookie’s MAX_AGE in the `cookie.js` file.
+At this point, we have a working app with authentication and session management through JWTs. The developer is able to control how long users stay logged in for, just by editing the cookie’s MAX_AGE in the `cookie.js` file and the `exp` in `/api/login.js`.
