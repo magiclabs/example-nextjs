@@ -1,255 +1,220 @@
-### Demo
+## Demo
 
-Live at https://next-magic-todo.vercel.app
+Live at https://magic-nextjs.vercel.app/login
 
 ## Quick Start
 
 ```
-$ git clone <repo>
-
-$ cd <repo_folder_name>
-
-$ npm i
-
-// will contain your environment variables
-$ touch .env.local
-
-// go to localhost:3000 to see your app
-$ yarn dev
+$ git clone https://github.com/magiclabs/example-nextjs
+$ cd example-nextjs
+$ mv .env.local.example .env.local
+// fill out your .env files
+// if you want social logins, follow our setup guide https://docs.magic.link/social-login
+$ yarn install
+$ yarn dev // opens server in http://localhost:3000
 ```
 
 #### Environment Variables
 
-- Get your Magic API keys from the <a href="https://dashboard.magic.link">Dashboard</a>
-
-- This example uses MongoDB Atlas, which provides a free cloud instance of Mongo that is very easy to connect to. Visit their <a href="https://account.mongodb.com/account/register">website</a> to create an account. Once you go through the setup steps, click "Connect your Application" to grab the URI.
-
 ```
-NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY=your_magic_publishable_key
+NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY=get-this-from-https://dashboard.magic.link/login
+MAGIC_SECRET_KEY=get-this-from-https://dashboard.magic.link/login
 NEXT_PUBLIC_SERVER_URL=http://localhost:3000
-MONGO_URI=your_mongo_URI
-ENCRYPTION_SECRET=32+_character_encryption_secret
-MAGIC_SECRET_KEY=your_magic_secret_key
+JWT_SECRET=your-secret-password
 ```
 
-# Tutorial
+## Walkthrough
 
 ### Introduction
 
-This tutorial will give a brief overview of how to integrate Magic into a Next.js application, using MongoDB as the database.
+Magic is a passwordless authentication sdk that lets you plug and play different auth methods into your app. Magic supports passwordless email login via magic links, social login (such as Login with Google), and WebAuthn (a protocol that lets users authenticate a hardware device using either a YubiKey or fingerprint via a username).
 
-### Building the Application
+We’ll be building an application that integrates Magic auth (magic link, social and webauthn login). This tutorial is broken out into two parts. The tutorial will not be line-by-line, but show you how to implement the core functionality.
 
+The application we build will follow this flow. A user completes any of the auth methods --> we are returned a decentralized Id (DID) token, which is Magic's proof of authentication --> send it to our server to validate --> our server issues a JWT inside a cookie --> on subsequent requests to the server, we validate the JWT to keep sessions persisting.
+
+### Magic Setup
+
+Your Magic setup will depend on what login options you want. For magic link and webauthn, minimal setup is required. For social login integrations, follow our documentation for configuration instructions.
+
+Once you have social logins configured (if applicable), grab your API keys from Magic’s dashboard and in `.env.local` enter your Test/Live Publishable Key such as `NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY=pk_test1234567890` and your Test/Live Secret Key such as `MAGIC_SECRET_KEY=sk_test_1234567890`.
+
+### Magic Link Auth
+
+In `pages/login.js`, we handle `magic.user.loginWithMagicLink()` which is what triggers the magic link to be emailed to the user. It takes an object with two parameters, email and an optional redirectURI. Magic allows you to have the magic link open up a new tab, bringing the user back to your application, and the redirectURI specifies where the user gets redirected to. `loginWithMagicLink` returns a promise, which resolves to a DID token when the link is clicked. We then send the DID token to `/api/login` where we validate it.
+
+```js
+async function handleLoginWithEmail(email) {
+  try {
+    let didToken = await magic.auth.loginWithMagicLink({
+      email,
+      redirectURI: `${process.env.NEXT_PUBLIC_SERVER_URL}/callback`,
+    });
+    authenticateWithServer(didToken);
+  } catch (error) {
+    // handle error
+  }
+}
+
+async function authenticateWithServer(didToken) {
+  const res = await fetch('/api/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: 'Bearer ' + didToken,
+    },
+  });
+  // redirect user home if successful
+}
 ```
-$ npx create-next-app magic-todo-list
 
-$ cd magic-todo-list
+With Magic, users always get logged in in the original tab, so even if a user requests to login from their computer, but clicks the link in the email app on their phone, they will still get logged in in both places if you have the redirectURI in place. When you specify the redirectURI, you need to configure a callback page where you complete the login on redirect.
 
-// create the folder structure we'll need
-$ mkdir components css utils models
+### Social Login Auth
 
-// will hold our environment variables
-$ touch .env.local
+The social login implementation is similar. `magic.loginWithRedirect()` takes an object with provider, and a redirectURI for where to redirect back to once the user is authenticated. We authenticate with the server on the /callback page.
 
-$ npm install magic-sdk @magic-sdk/admin cookie mongoose @zeit/next-css @hapi/iron
-
-// starts the app on localhost:3000
-$ yarn dev
+```js
+async function handleLoginWithSocial(provider) {
+  await magic.oauth.loginWithRedirect({
+    provider, // 'google', 'apple', etc
+    redirectURI: `${process.env.NEXT_PUBLIC_SERVER_URL}/callback`,
+  });
+}
 ```
 
-### Login
+### WebAuthn
 
-The `Login` component will allow the user to authenticate with Magic. The sequence of events is:
+Finally, you can let users log into your app with just a fingerprint (on supported browsers) or yubikey. This is powered by the WebAuthn protocol, and allows users to register and login with their hardware device. The low-level implementation of WebAuthn has a different flow for registering and logging in, but to keep from breaking out our form into login and signup for WebAuthn, we check if the login fails, and if so, we retry by registering the device.
 
-- User enters their email and clicks "Log in"
-- An email containing a magic link is sent to the user, triggered by `magic.auth.loginWithMagicLink({ email });`
-- User clicks the email link
-- `loginWithMagicLink()` resolves to a unique `DID token`
-- A `POST` request is sent to the database with the `DID` inside the `Authorization Header`
-- Server validates the `DID`, creates a user based on `getMetadata()`, and responds back to the client `{ authorized: true, user: user }`
-- `setLoggedIn` is set to the user object returned by the server
-- Redirect to home page
+```js
+async function handleLoginWithWebauthn(email) {
+  try {
+    let didToken = await magic.webauthn.login({ username: email });
+    authenticateWithServer(didToken);
+  } catch (error) {
+    try {
+      let didToken = await magic.webauthn.registerNewUser({ username: email });
+      authenticateWithServer(didToken);
+    } catch (error) {
+      // handle error
+    }
+  }
+}
+```
 
-```javascript
-// components/Login.js
-import { useContext, useState } from "react";
-import { MagicContext, LoggedInContext, LoadingContext } from "./Store";
-import Router from "next/router";
-import Link from "next/link";
+### Completing the Login Redirect
 
-const Login = () => {
-  const [loggedIn, setLoggedIn] = useContext(LoggedInContext);
-  const [isLoading, setIsLoading] = useContext(LoadingContext);
-  const [email, setEmail] = useState("");
-  const [magic] = useContext(MagicContext);
+In the `/callback` page, we need to check if the query parameters include a `provider`, and if so, we finish the social login, otherwise, we know it’s a user completing the email login.
 
-  const handleLogin = async () => {
-    /* Get DID Token returned from when the email link is clicked */
-    const DIDT = await magic.auth.loginWithMagicLink({ email });
+```js
+useEffect(() => {
+  !magic &&
+    setMagic(
+      new Magic(process.env.NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY, {
+        extensions: [new OAuthExtension()],
+      })
+    );
+  magic && router.query.provider ? finishSocialLogin() : finishEmailRedirectLogin();
+}, [magic, router.query]);
 
-    /* Pass the Decentralized ID token in the Authorization header to the database */
-    let res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/login`, {
-      method: "POST",
-      headers: new Headers({
-        Authorization: "Bearer " + DIDT,
-      }),
+const finishSocialLogin = async () => {
+  try {
+    let {
+      magic: { idToken },
+    } = await magic.oauth.getRedirectResult();
+    await authenticateWithServer(idToken);
+  } catch (error) {
+    // handle error
+  }
+};
+
+const finishEmailRedirectLogin = async () => {
+  if (router.query.magic_credential) {
+    try {
+      let didToken = await magic.auth.loginWithCredential();
+      await authenticateWithServer(didToken);
+    } catch (error) {
+      // handle error
+    }
+  }
+};
+```
+
+##### Server-side
+
+On our backend, inside `/api/login`, we verify the DID token, create a JWT, then set it inside a cookie. On subsequent requests to the server, to check if the user is already authenticated for example, all we have to do is verify the JWT to know if the user has already been authenticated, and is authorized.
+
+```js
+export default async function login(req, res) {
+  try {
+    const didToken = req.headers.authorization.substr(7);
+    await magic.token.validate(didToken);
+    const metadata = await magic.users.getMetadataByToken(didToken);
+    let token = jwt.sign(
+      { ...metadata, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7 }, // one week
+      process.env.JWT_SECRET
+    );
+    setTokenCookie(res, token);
+    res.status(200).send({ done: true });
+  } catch (error) {
+    res.status(error.status || 500).end(error.message);
+  }
+}
+```
+
+##### Persisting Sessions
+
+To make sessions persist, we rely on the JWT that’s stored in a cookie and automatically sent on each request to our server. The endpoint we set up for this is `/api/user`. Leveraging Vercel’s SWR (stale while revalidate), we send a request to our server with the JWT which verifies the authenticity of the token, and as long as we get a user returned, we know it’s valid and to keep the user logged in.
+
+```js
+const fetchUser = (url) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => {
+      return { user: data?.user || null };
     });
 
-    /* If the user is authorized, return an object containing the user properties (issuer, publicAddress, email) */
-    /* Else, the login was not successful and return false */
-    let user = data.authorized ? data.user : false;
+export function useUser({ redirectTo, redirectIfFound } = {}) {
+  const { data, error } = useSWR('/api/user', fetchUser);
+  const user = data?.user;
+  const finished = Boolean(data);
+  const hasUser = Boolean(user);
 
-    if (user) {
-      setLoggedIn(user.email);
-      Router.push("/");
+  useEffect(() => {
+    if (!redirectTo || !finished) return;
+    if (
+      // If redirectTo is set, redirect if the user was not found.
+      (redirectTo && !redirectIfFound && !hasUser) ||
+      // If redirectIfFound is also set, redirect if the user was found
+      (redirectIfFound && hasUser)
+    ) {
+      Router.push(redirectTo);
     }
-  };
-
-  return (
-    <>
-      {isLoading ? ( // if fetching data, show a loading symbol
-        <img src="/loading.gif" />
-      ) : loggedIn ? ( // If the user is logged in
-        <div>You're already logged in!</div>
-      ) : (
-        <form>{/* form for user to enter email */}</form>
-      )}
-    </>
-  );
-};
-
-export default Login;
+  }, [redirectTo, redirectIfFound, finished, hasUser]);
+  return error ? null : user;
+}
 ```
 
-### Customizing the UI
+##### Logout
 
-Magic allows you to own your UI. You can hide the modal after a user clicks Log In with `await loginWithMagicLink({ email, showUI: false })`. If you are on the <a href="https://magic.link/pricing">Starter Plan</a>, you can also customize the modal and email by adding your logo and choosing the style colors. Navigate to the <a href="https://dashboard.magic.link">Magic Dashboard</a> --> "Custom Branding".
+To complete the authentication, we need to allow users to log out. In `/api/logout` we use Magic’s admin-sdk method to clear the cookie containing the JWT and log the user out of their session with Magic.
 
-### Handling Login Server-side
-
-In `/pages/api/user/login.js` we handle POST requests to authenticate the user with our database. Once we validate the `DID token` and create a new user in the database, we have to issue a cookie to track our user sessions.
-
-```javascript
-// pages/api/user/login.js
-import { magic } from "../../../utils/magic";
-import { encryptCookie, cookie } from "../../../utils/cookie";
-import { serialize } from "cookie";
-import User from "../../../models/User";
-import dbConnect from "../../../models/connection";
-
-/* open connection to database */
-dbConnect();
-
-/* save new user to database */
-const signup = async (user) => {
-  let newUser = {
-    email: user.email,
-    issuer: user.issuer,
-  };
-  return await new User(newUser).save();
-};
-
-export default async (req, res) => {
-  const { method } = req;
-
-  if (method !== "POST") {
-    return res.status(400).json({ message: "Only POST requests are accepted" });
-  }
-
-  /* strip token from Authorization header */
-  let DIDT = magic.utils.parseAuthorizationHeader(req.headers.authorization);
-
-  /* validate token to ensure request came from the issuer */
-  await magic.token.validate(DIDT);
-
-  /* decode token to get claim obj with data */
-  let claim = magic.token.decode(DIDT)[1];
-
-  /* get user data from Magic */
-  const userMetadata = await magic.users.getMetadataByIssuer(claim.iss);
-
-  /* check if user is already in */
-  const existingUser = await User.findOne({ issuer: claim.iss });
-
-  /* Create new user if doesn't exist */
-  !existingUser && signup(userMetadata);
-
-  /* encrypted cookie details */
-  const token = await encryptCookie(userMetadata);
-
-  /* set cookie */
-  await res.setHeader("Set-Cookie", serialize("auth", token, cookie));
-
-  /* send back response with user obj */
-  return res.json({ authorized: true, user: userMetadata });
-};
-```
-
-### Is User Authorized
-
-We are also going to create an enpoint `pages/api/user` where our frontend can check if the current user is authorized.
-
-```javascript
-// pages/api/user/index.js
-import { decryptCookie } from "../../../utils/cookie";
-
-export default async (req, res) => {
-  const { method } = req;
-
-  if (method !== "GET") {
-    return res.status(400).json({ message: "This route only accepts GET requests" });
-  }
-
-  let userFromCookie;
-
+```js
+export default async function logout(req, res) {
   try {
-    userFromCookie = await decryptCookie(req.cookies.auth);
+    let token = req.cookies.token;
+    let user = jwt.verify(token, process.env.JWT_SECRET);
+    await magic.users.logoutByIssuer(user.issuer);
+    removeTokenCookie(res);
+    res.writeHead(302, { Location: '/login' });
+    res.end();
   } catch (error) {
-    /* if there's no valid auth cookie, user is not logged in */
-    return res.json({ authorized: false, error });
+    // handle error
   }
-
-  /* send back response with user obj */
-  return res.json({ authorized: true, user: userFromCookie });
-};
+}
 ```
 
-### Logout
+##### Conclusion
 
-`pages/api/user/logout.js` overrides the current auth cookie with one that's expired, essentially clearing it out. It also ensures the user is logged out of their session with Magic.
-
-```javascript
-// pages/api/user/logout.js
-import { magic } from "../../../utils/magic";
-import { cookie } from "../../../utils/cookie";
-import { serialize } from "cookie";
-
-export default async (req, res) => {
-  /* replace current auth cookie with an expired one */
-  res.setHeader(
-    "Set-Cookie",
-    serialize("auth", "", {
-      ...cookie,
-      expires: new Date(Date.now() - 1),
-    })
-  );
-
-  let userFromCookie;
-
-  try {
-    userFromCookie = await decryptCookie(req.cookies.auth);
-  } catch (error) {
-    /* if there's no valid auth cookie, user is not logged in */
-    return res.json({ authorized: false, error });
-  }
-
-  /* log use out of Magic */
-  await magic.users.logoutByToken(userFromCookie.publicAddress);
-
-  return res.json({ authorized: false });
-};
-```
-
-### Deploying the app with Vercel
-
-To deploy with Vercel, follow <a href="https://docs.magic.link/integrations/next#how-to-deploy-a-nextjs-magic-example">this tutorial</a>.
+At this point, we have a working app with authentication and session management through JWTs. The developer is able to control how long users stay logged in for, just by editing the cookie’s MAX_AGE in the `cookie.js` file.

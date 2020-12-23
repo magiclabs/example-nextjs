@@ -1,12 +1,10 @@
-import TodoList from "../components/todos/TodoList";
-import Store from "../components/Store";
+import { useUser } from '../lib/hooks';
+import Layout from '../components/layout';
 
-const TodoView = () => {
-  return (
-    <Store>
-      <TodoList />
-    </Store>
-  );
+const Home = () => {
+  const user = useUser();
+
+  return <Layout>{user ? <div>You're logged in!</div> : <div>Log in to continue</div>}</Layout>;
 };
 
-export default TodoView;
+export default Home;
