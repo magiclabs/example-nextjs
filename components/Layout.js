@@ -1,61 +1,42 @@
-import Head from "next/head";
-import { useContext } from "react";
-import { LoggedInContext, MagicContext } from "./Store";
-import Link from "next/link";
+import Head from 'next/head';
+import Header from './header';
 
-const Layout = () => {
-  const [loggedIn, setLoggedIn] = useContext(LoggedInContext);
-  const [magic] = useContext(MagicContext);
+const Layout = (props) => (
+  <>
+    <Head>
+      <title>Magic</title>
+      <link rel='icon' href='/favicon.ico' />
+    </Head>
 
-  /**
-   * Log user out of of the session with our app (clears the `auth` cookie)
-   * Log the user out of their session with Magic
-   */
-  const handleLogout = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/user/logout`, {
-      method: "GET"
-    });
-    setLoggedIn(false);
-    await magic.user.logout();
-  };
+    <Header />
 
-  return (
-    <>
-      <Head>
-        <title>Next Magic Todo</title>
-      </Head>
-      <nav className="nav">
-        <div>
-          <img src="/magic-horizontal-color-white.png" className="nav-logo" alt="Logo" />
-        </div>
-        {/* If a user is logged in, show our Welcome message and Logout button */}
-        {loggedIn ? (
-          <>
-            <div className="nav-user">Welcome, {loggedIn}</div>
-            <div className="logout-btn">
-              <a
-                onClick={e => {
-                  e.preventDefault();
-                  handleLogout();
-                }}
-              >
-                Logout
-              </a>
-            </div>
-          </>
-        ) : (
-          // Else, show the Login button
-          <>
-            <Link href="/login">
-              <div className="login-btn">
-                <a>Log in</a>
-              </div>
-            </Link>
-          </>
-        )}
-      </nav>
-    </>
-  );
-};
+    <main>
+      <div className='container'>{props.children}</div>
+    </main>
+    <style jsx global>{`
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap');
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        font-family: 'Inter', sans-serif;
+        outline: none;
+      }
+      body {
+        margin: 0;
+        color: #333;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+          Noto Sans, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+          'Noto Color Emoji';
+        background-color: #fff;
+      }
+      .container {
+        max-width: 42rem;
+        margin: 0 auto;
+      }
+    `}</style>
+  </>
+);
 
 export default Layout;
