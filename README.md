@@ -165,7 +165,37 @@ export default async function login(req, res) {
 
 ### Persisting Sessions
 
-To make sessions persist, we rely on the JWT that’s stored in a cookie and automatically sent on each request to our server. The endpoint we set up for this is `/api/user`. Leveraging Vercel’s SWR (stale while revalidate), we send a request to our server with the JWT which verifies the authenticity of the token, and as long as we get a user returned, we know it’s valid and to keep the user logged in.
+To make sessions persist, we rely on the JWT that’s stored in a cookie and automatically sent on each request to our server. The endpoint we send it to is /api/user which verifies the token, then refreshes it on each request. If we didn’t refresh the token, we could run into the scenario where a user logs in, then is browsing our site a week later and gets logged out in the middle of their session because the cookie/token we set had expired.
+
+```js
+import jwt from 'jsonwebtoken';
+import { setTokenCookie } from '../../lib/cookies';
+
+export default async function user(req, res) {
+  try {
+    console.log('/user called');
+    let token = req.cookies.token;
+    let user = jwt.verify(token, process.env.JWT_SECRET);
+    const metadata = user;
+    let refreshedToken = jwt.sign(
+      {
+        issuer: user.issuer,
+        publicAddress: user.publicAddress,
+        email: user.email,
+        exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // one week
+      },
+      process.env.JWT_SECRET
+    );
+    user.token = refreshedToken;
+    setTokenCookie(res, refreshedToken);
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(200).json({ user: null });
+  }
+}
+```
+
+Leveraging Vercel’s SWR (stale while revalidate), we send a request to our server with the JWT which verifies the authenticity of the token, and as long as we get a user returned, we know it’s valid and to keep the user logged in.
 
 ```js
 const fetchUser = (url) =>
