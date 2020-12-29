@@ -15,7 +15,6 @@ const Layout = (props) => (
     </main>
     <style jsx global>{`
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap');
-      @import url('https://fonts.googleapis.com/css2?family=Cutive+Mono&display=swap');
       *,
       *::before,
       *::after {
@@ -26,9 +25,6 @@ const Layout = (props) => (
       body {
         margin: 0;
         color: #333;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-          Noto Sans, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-          'Noto Color Emoji';
         background-color: #fff;
       }
       .container {

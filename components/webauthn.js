@@ -1,6 +1,6 @@
 import ReactTooltip from 'react-tooltip';
 
-const Webauthn = ({ onSubmit, email, isLoading, setInvalidEmailError }) => {
+const Webauthn = ({ onSubmit, email, isLoading }) => {
   return (
     <>
       <button
@@ -9,7 +9,7 @@ const Webauthn = ({ onSubmit, email, isLoading, setInvalidEmailError }) => {
         data-for='webauthn-btn'
         onClick={(e) => {
           e.preventDefault();
-          !email ? setInvalidEmailError(true) : onSubmit(email);
+          email && onSubmit(email);
         }}
       >
         .

@@ -2,12 +2,8 @@ import { useState } from 'react';
 import Webauthn from './webauthn';
 import { validateEmail } from '../lib/helpers';
 
-const Form = ({ onEmailSubmit, onWebauthnSubmit, isLoading, disabled }) => {
+const Form = ({ onEmailSubmit, disabled, onWebauthnSubmit, isLoading }) => {
   const [email, setEmail] = useState('');
-  const [invalidEmailError, setInvalidEmailError] = useState(false);
-
-  const mailURL =
-    'https://www.pinclipart.com/picdir/big/52-525907_white-email-symbol-transparent-clipart-email-address-mail.png';
 
   return (
     <>
@@ -20,11 +16,8 @@ const Form = ({ onEmailSubmit, onWebauthnSubmit, isLoading, disabled }) => {
             value={email}
             required
             placeholder='Email'
-            className={`email-input ${invalidEmailError && 'invalid-email'}`}
-            onChange={(e) => {
-              setInvalidEmailError(false);
-              setEmail(e.target.value);
-            }}
+            className='email-input'
+            onChange={(e) => setEmail(e.target.value)}
           />
         </label>
 
@@ -34,17 +27,12 @@ const Form = ({ onEmailSubmit, onWebauthnSubmit, isLoading, disabled }) => {
             disabled={disabled}
             onClick={(e) => {
               e.preventDefault();
-              !email || !validateEmail(email) ? setInvalidEmailError(true) : onEmailSubmit(email);
+              email && validateEmail(email) && onEmailSubmit(email);
             }}
           >
             Send Magic Link
           </button>
-          <Webauthn
-            onSubmit={onWebauthnSubmit}
-            email={email}
-            isLoading={isLoading}
-            setInvalidEmailError={setInvalidEmailError}
-          />
+          <Webauthn onSubmit={onWebauthnSubmit} email={email} isLoading={isLoading} />
         </div>
       </form>
       <style jsx>{`
@@ -62,7 +50,7 @@ const Form = ({ onEmailSubmit, onWebauthnSubmit, isLoading, disabled }) => {
           outline: none;
           transition: 0.5s;
           width: 80%;
-          background-image: url(${mailURL});
+          background-image: url(mail.png);
           background-size: 18px;
           background-repeat: no-repeat;
           background-position: 5% 50%;
@@ -70,9 +58,6 @@ const Form = ({ onEmailSubmit, onWebauthnSubmit, isLoading, disabled }) => {
         }
         .email-input:focus {
           border: 1px solid #888;
-        }
-        .invalid-email {
-          border: 1px solid #ffabab;
         }
         .submit {
           display: flex;

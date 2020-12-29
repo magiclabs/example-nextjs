@@ -17,8 +17,7 @@ const Callback = () => {
           extensions: [new OAuthExtension()],
         })
       );
-
-    // if "provider" is in query params, we know the user is logging in with social, otherwise handle it as email redirectURI
+    /* if `provider` is in our query params, the user is logging in with a social provider */
     magic && router.query.provider ? finishSocialLogin() : finishEmailRedirectLogin();
   }, [magic, router.query]);
 
@@ -30,7 +29,7 @@ const Callback = () => {
       setShowValidatingToken(true);
       await authenticateWithServer(idToken);
     } catch (error) {
-      console.error(error);
+      console.log(error);
       setErrorMsg('Error logging in. Please try again.');
     }
   };
@@ -42,7 +41,7 @@ const Callback = () => {
         setShowValidatingToken(true);
         await authenticateWithServer(didToken);
       } catch (error) {
-        console.error(error);
+        console.log(error);
         setErrorMsg('Error logging in. Please try again.');
       }
     }

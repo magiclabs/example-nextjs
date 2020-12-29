@@ -3,9 +3,10 @@ import { setTokenCookie } from '../../lib/cookies';
 
 export default async function user(req, res) {
   try {
+    if (!req.cookies.token) return res.json({ user: null });
     let token = req.cookies.token;
     let user = jwt.verify(token, process.env.JWT_SECRET);
-    let refreshedToken = jwt.sign(
+    let newToken = jwt.sign(
       {
         issuer: user.issuer,
         publicAddress: user.publicAddress,
@@ -14,8 +15,8 @@ export default async function user(req, res) {
       },
       process.env.JWT_SECRET
     );
-    user.token = refreshedToken;
-    setTokenCookie(res, refreshedToken);
+    user.token = newToken;
+    setTokenCookie(res, newToken);
     res.status(200).json({ user });
   } catch (error) {
     res.status(200).json({ user: null });

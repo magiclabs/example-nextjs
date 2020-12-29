@@ -15,7 +15,6 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "react-fade-in": "^1.1.1",
     "react-tooltip": "^4.2.11",
     "swr": "0.1.16"
   },

@@ -9,7 +9,7 @@ import Form from '../components/form';
 import SocialLogins from '../components/social-logins';
 
 const Login = () => {
-  useUser({ redirectTo: '/', redirectIfFound: true }); // if user is logged in and tries to access /login, redirect to /
+  useUser({ redirectTo: '/', redirectIfFound: true });
   const [magic, setMagic] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [disabled, setDisabled] = useState(false);
@@ -26,15 +26,15 @@ const Login = () => {
 
   async function handleLoginWithEmail(email) {
     try {
-      setDisabled(true); // disable login to prevent multiple emails from being triggered
+      setDisabled(true); // disable login button to prevent multiple emails from being triggered
       let didToken = await magic.auth.loginWithMagicLink({
         email,
         redirectURI: `${process.env.NEXT_PUBLIC_SERVER_URL}/callback`,
       });
       authenticateWithServer(didToken);
     } catch (error) {
-      setDisabled(false); // re-enable login - user may have requested to edit their email
-      console.error('An unexpected error happened occurred:', error);
+      setDisabled(false); // re-enable login button - user may have requested to edit their email
+      console.log(error);
     }
   }
 
@@ -50,12 +50,12 @@ const Login = () => {
     try {
       let didToken = await magic.webauthn.login({ username: email });
       setIsLoading(true);
-      authenticateWithServer(didToken);
+      await authenticateWithServer(didToken);
     } catch (error) {
       try {
         let didToken = await magic.webauthn.registerNewUser({ username: email });
         setIsLoading(true);
-        authenticateWithServer(didToken);
+        await authenticateWithServer(didToken);
       } catch (err) {
         alert(
           'Failed to authenticate. Must be using a supported device and a username not already taken.'
@@ -73,9 +73,7 @@ const Login = () => {
         Authorization: 'Bearer ' + didToken,
       },
     });
-    if (res.status === 200) {
-      Router.push('/');
-    }
+    res.status === 200 && Router.push('/');
   }
 
   return (

@@ -1,29 +1,25 @@
-import FadeIn from 'react-fade-in';
-
 const SocialLogins = ({ onSubmit }) => {
-  const providers = ['google', 'github', 'facebook'];
+  const providers = ['google', 'facebook', 'github'];
 
   return (
     <>
-      <FadeIn>
-        <div className='or-login-with'>Or login with</div>
-        {providers.map((provider) => {
-          return (
-            <div key={provider}>
-              <button
-                type='submit'
-                className='social-btn'
-                onClick={() => onSubmit(provider)}
-                key={provider}
-                style={{ backgroundImage: `url(${provider}.png)` }}
-              >
-                {/* turns "google" to "Google" */}
-                {provider.replace(/^\w/, (c) => c.toUpperCase())}
-              </button>
-            </div>
-          );
-        })}
-      </FadeIn>
+      <div className='or-login-with'>Or login with</div>
+      {providers.map((provider) => {
+        return (
+          <div key={provider}>
+            <button
+              type='submit'
+              className='social-btn'
+              onClick={() => onSubmit(provider)}
+              key={provider}
+              style={{ backgroundImage: `url(${provider}.png)` }}
+            >
+              {/* turns "google" to "Google" */}
+              {provider.replace(/^\w/, (c) => c.toUpperCase())}
+            </button>
+          </div>
+        );
+      })}
 
       <style jsx>{`
         .or-login-with {

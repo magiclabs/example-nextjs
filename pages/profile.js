@@ -2,7 +2,7 @@ import Layout from '../components/layout';
 import { useUser, useWebauthn } from '../lib/hooks';
 
 const Profile = () => {
-  const user = useUser({ redirectTo: '/login' }); // redirect user to /login if not logged in
+  const user = useUser({ redirectTo: '/login' });
   const webauthnData = useWebauthn();
 
   return (
