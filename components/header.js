@@ -35,19 +35,12 @@ const Header = () => {
       <style jsx>{`
         nav {
           max-width: 45rem;
-          margin: 0 auto;
-          margin-bottom: 50px;
+          margin: 0 auto 50px;
           padding: 0.2rem 1.25rem;
         }
         ul {
           display: flex;
-          justify-content: space-between;
           list-style: none;
-          margin-left: 0;
-          padding-left: 0;
-        }
-        .nav-links-container {
-          display: flex;
         }
         li {
           margin-right: 1rem;

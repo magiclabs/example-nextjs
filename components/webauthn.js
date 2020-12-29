@@ -24,13 +24,8 @@ const Webauthn = ({ onSubmit, email, isLoading }) => {
           background: #fff;
           border: 1px solid #ccc;
           border-radius: 50px;
-          width: 80%;
-          outline: none;
           transition: 0.3s;
-          margin: 0 auto;
-          font-size: 13px;
           width: 16%;
-          height: 100%;
           color: transparent;
           background-image: ${!isLoading
             ? 'url(webauthn.png)'

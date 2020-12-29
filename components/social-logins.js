@@ -1,5 +1,5 @@
 const SocialLogins = ({ onSubmit }) => {
-  const providers = ['google', 'facebook', 'github'];
+  const providers = ['apple', 'google', 'facebook', 'github'];
 
   return (
     <>
@@ -23,8 +23,7 @@ const SocialLogins = ({ onSubmit }) => {
 
       <style jsx>{`
         .or-login-with {
-          margin-top: 25px;
-          margin-bottom: 30px;
+          margin: 25px 0;
           font-size: 12px;
           color: gray;
           text-align: center;
@@ -37,7 +36,6 @@ const SocialLogins = ({ onSubmit }) => {
           font-size: 14px;
           border: 1px solid #ccc;
           cursor: pointer;
-          outline: none;
           transition: 0.3s;
           background-color: #fff;
           background-size: 19px;

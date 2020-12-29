@@ -47,7 +47,6 @@ const Form = ({ onEmailSubmit, disabled, onWebauthnSubmit, isLoading }) => {
           margin: 1rem auto;
           border: 1px solid #ccc;
           border-radius: 50px;
-          outline: none;
           transition: 0.5s;
           width: 80%;
           background-image: url(mail.png);
@@ -61,14 +60,9 @@ const Form = ({ onEmailSubmit, disabled, onWebauthnSubmit, isLoading }) => {
         }
         .submit {
           display: flex;
-          justify-content: flex-end;
-          align-items: center;
           justify-content: space-between;
-          width: 82%;
+          width: 80%;
           margin: 0 auto;
-        }
-        .submit > a {
-          text-decoration: none;
         }
         .submit > button {
           padding: 0.6rem 1rem;
@@ -76,17 +70,14 @@ const Form = ({ onEmailSubmit, disabled, onWebauthnSubmit, isLoading }) => {
           background: #fff;
           border: 1px solid #ccc;
           border-radius: 50px;
-          width: 80%;
-          outline: none;
           transition: 0.3s;
-          margin: 0 auto;
           font-size: 13px;
           background-image: url(airplane.png);
           background-size: 21px;
           background-repeat: no-repeat;
           background-position: 12% 50%;
           padding-left: 38px;
-          width: 77%;
+          width: 80%;
         }
         .submit > button:hover {
           border-color: #888;

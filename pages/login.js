@@ -90,12 +90,11 @@ const Login = () => {
       <style jsx>{`
         .login {
           max-width: 20rem;
-          margin: 0 auto;
+          margin: 40px auto 0;
           padding: 1rem;
           border: 1px solid #ccc;
           border-radius: 4px;
           text-align: center;
-          margin-top: 40px;
         }
       `}</style>
     </Layout>
