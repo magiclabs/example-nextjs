@@ -7,7 +7,8 @@ Live at https://magic-nextjs.vercel.app/login
 ```
 $ git clone https://github.com/magiclabs/example-nextjs
 $ cd example-nextjs
-$ mv .env.local.example .env.local // enter your Magic API keys
+$ mv .env.local.example .env.local
+// enter your Magic API keys in your env variables
 $ yarn install
 $ yarn dev // starts server in http://localhost:3000
 ```
@@ -15,8 +16,8 @@ $ yarn dev // starts server in http://localhost:3000
 #### Environment Variables
 
 ```
-NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY=get-this-from-https://dashboard.magic.link/login
-MAGIC_SECRET_KEY=get-this-from-https://dashboard.magic.link/login
+NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY=get-this-from-magic-dashboard
+MAGIC_SECRET_KEY=get-this-from-magic-dashboard
 NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 JWT_SECRET=enter-your-32-character-secret-here
 ```
@@ -27,7 +28,7 @@ JWT_SECRET=enter-your-32-character-secret-here
 
 Magic is a passwordless authentication sdk that lets you plug and play different auth methods into your app. Magic supports passwordless email login via magic links, social login (such as Login with Google), and WebAuthn (a protocol that lets users authenticate a hardware device using either a YubiKey or fingerprint).
 
-The application we build will follow the following flow. A user goes through any of the auth methods --> Magic returns a decentralized ID (DID) token, which is proof of authentication --> send it to our server to validate --> our server issues a JWT inside a cookie --> on subsequent requests to the server, we validate and refresh the JWT to persist sessions.
+Flow of the application: a user goes through any of the auth methods --> Magic returns a decentralized ID (DID) token, which is proof of authentication --> send it to our server to validate --> our server issues a JWT inside a cookie --> on subsequent requests to the server, we validate and refresh the JWT to persist sessions.
 
 ### Magic Setup
 
@@ -37,7 +38,7 @@ Once you have social logins configured (if applicable), grab your API keys from 
 
 ### Magic Link Auth
 
-In `pages/login.js`, we handle `magic.user.loginWithMagicLink()` which is what triggers the magic link to be emailed to the user. It takes an object with two parameters, `email` and an optional `redirectURI`. Magic allows you to configure the email link to open up a new tab, bringing the user back to your application. With the redirect in place, a user will get logged in on both the original and new tab. Once the user clicks the email link, send the `DID token` to our server endpoint at `/api/login` where we validate it.
+In `pages/login.js`, we handle `magic.auth.loginWithMagicLink()` which is what triggers the magic link to be emailed to the user. It takes an object with two parameters, `email` and an optional `redirectURI`. Magic allows you to configure the email link to open up a new tab, bringing the user back to your application. With the redirect in place, a user will get logged in on both the original and new tab. Once the user clicks the email link, send the `DID token` to our server endpoint at `/api/login` where we validate it.
 
 ```js
 async function handleLoginWithEmail(email) {
@@ -66,7 +67,7 @@ async function authenticateWithServer(didToken) {
 
 ### Social Login Auth
 
-The social login implementation is similar. `magic.loginWithRedirect()` takes an object with provider, and a redirectURI for where to redirect back to once the user is authenticated. We authenticate with the server on the /callback page.
+The social login implementation is similar. `magic.oauth.loginWithRedirect()` takes an object with provider, and a redirectURI for where to redirect back to once the user is authenticated. We authenticate with the server on the `/callback` page.
 
 ```js
 async function handleLoginWithSocial(provider) {
@@ -85,11 +86,11 @@ Finally, you can let users login to your app with just a fingerprint (on support
 async function handleLoginWithWebauthn(email) {
   try {
     let didToken = await magic.webauthn.login({ username: email });
-    authenticateWithServer(didToken);
+    await authenticateWithServer(didToken);
   } catch (error) {
     try {
       let didToken = await magic.webauthn.registerNewUser({ username: email });
-      authenticateWithServer(didToken);
+      await authenticateWithServer(didToken);
     } catch (error) {
       // handle error
     }
@@ -99,7 +100,7 @@ async function handleLoginWithWebauthn(email) {
 
 ### Completing the Login Redirect
 
-In the `/callback` page, we need to check if the query parameters include a `provider`, and if so, we finish the social login, otherwise, we know it’s a user completing the email login.
+In the `/callback` page, check if the query parameters include a `provider`, and if so, finish the social login, otherwise, it’s a user completing the email login.
 
 ```js
 useEffect(() => {
@@ -164,7 +165,7 @@ export default async function login(req, res) {
 
 ### Persisting Sessions
 
-To make sessions persist, we rely on the JWT that’s stored in a cookie and automatically sent on each request to our server. The endpoint we send it to is `/api/user` which verifies the token, then refreshes it on each request. If we didn’t refresh the token, we could run into the scenario where a user logs in, then is browsing our site a week later and gets logged out in the middle of their session because the cookie and token we set had expired.
+To make sessions persist, we rely on the JWT that’s stored in a cookie and automatically sent on each request to our server. The endpoint we check is `/api/user` which verifies the token, then refreshes it on each request. If we didn’t refresh the token, we could run into the scenario where a user logs in, then is browsing our site a week later and gets logged out in the middle of their session because the cookie and token we set had expired.
 
 ```js
 import jwt from 'jsonwebtoken';
@@ -193,7 +194,7 @@ export default async function user(req, res) {
 }
 ```
 
-Leveraging Vercel’s SWR (stale while revalidate) library, we send a request to the server with the `JWT`, and as long as we get a user returned, we know it’s valid and to keep the user logged in.
+Leveraging Vercel’s SWR (stale while revalidate) library, our `useUser` hook sends a request to the server with the `JWT`, and as long as we get a user returned, we know it’s valid and to keep the user logged in.
 
 ```js
 const fetchUser = (url) =>
@@ -243,7 +244,3 @@ export default async function logout(req, res) {
   }
 }
 ```
-
-### Conclusion
-
-At this point, we have a working app with authentication and session management through JSON web tokens. The developer is able to control how long users stay logged in for, just by editing the cookie’s MAX_AGE in the `cookie.js` file and the `exp` in `/api/login.js`.
