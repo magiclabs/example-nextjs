@@ -22,7 +22,7 @@ NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 JWT_SECRET=enter-your-32-character-secret-here
 ```
 
-## Walkthrough
+## Tutorial
 
 ### Introduction
 
