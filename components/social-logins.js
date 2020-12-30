@@ -1,5 +1,5 @@
 const SocialLogins = ({ onSubmit }) => {
-  const providers = ['apple', 'google', 'facebook', 'github'];
+  const providers = ['google', 'facebook', 'github'];
 
   return (
     <>
