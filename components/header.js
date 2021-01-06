@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { useUser } from '../lib/hooks';
+import { CallToAction } from '@magiclabs/ui';
 
 const Header = () => {
   const user = useUser();
@@ -26,7 +27,9 @@ const Header = () => {
           ) : (
             <li>
               <Link href='/login'>
-                <a>Login</a>
+                <CallToAction color='primary' size='sm'>
+                  Login
+                </CallToAction>
               </Link>
             </li>
           )}
@@ -36,25 +39,25 @@ const Header = () => {
         nav {
           max-width: 45rem;
           margin: 0 auto 50px;
-          padding: 0.2rem 1.25rem;
+          padding: 1.25rem 1.25rem;
+          border-bottom: 1px solid #f0f0f0;
+          box-sizing: border-box;
         }
         ul {
           display: flex;
           list-style: none;
         }
         li {
-          margin-right: 1rem;
+          margin-right: 1.5rem;
         }
         li:first-child {
           margin-left: auto;
         }
-        a {
-          color: #fff;
+        li > a {
+          color: #6851ff;
           text-decoration: none;
-        }
-        header {
-          color: #ccc;
-          background-color: #212121;
+          line-height: 38px;
+          font-size: 17px !important;
         }
       `}</style>
     </header>

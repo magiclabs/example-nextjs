@@ -76,6 +76,7 @@ const Callback = () => {
         }
         .auth-step {
           margin: 30px 0;
+          font-size: 17px;
         }
         .error {
           color: red;

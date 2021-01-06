@@ -1,38 +1,44 @@
 import { useState } from 'react';
 import Webauthn from './webauthn';
 import { validateEmail } from '../lib/helpers';
+import { Input, Icon, MonochromeIcons, useToast, CallToAction } from '@magiclabs/ui';
 
-const Form = ({ onEmailSubmit, disabled, onWebauthnSubmit, isLoading }) => {
+const Form = ({ onEmailSubmit, disabled, onWebauthnSubmit }) => {
   const [email, setEmail] = useState('');
+  const { createToast } = useToast();
+
+  const addToast = () => {
+    createToast({ message: 'Invalid email', type: 'error', lifespan: 2000 });
+  };
 
   return (
     <>
       <form>
-        <h3>Login</h3>
-        <label>
-          <input
+        <h3 className='form-header'>Login</h3>
+        <div className='input-wrapper'>
+          <Input
+            placeholder='Enter your email'
+            size='sm'
             type='email'
-            name='email'
             value={email}
-            required
-            placeholder='Email'
-            className='email-input'
             onChange={(e) => setEmail(e.target.value)}
+            prefix={<Icon inline type={MonochromeIcons.Envelope} size={22} />}
           />
-        </label>
-
+        </div>
         <div className='submit'>
-          <button
-            type='submit'
+          <CallToAction
+            leadingIcon={MonochromeIcons.PaperPlane}
+            color='primary'
+            size='sm'
             disabled={disabled}
             onClick={(e) => {
               e.preventDefault();
-              email && validateEmail(email) && onEmailSubmit(email);
+              !email || !validateEmail(email) ? addToast() : onEmailSubmit(email);
             }}
           >
             Send Magic Link
-          </button>
-          <Webauthn onSubmit={onWebauthnSubmit} email={email} isLoading={isLoading} />
+          </CallToAction>
+          <Webauthn onSubmit={onWebauthnSubmit} email={email} addToast={addToast} />
         </div>
       </form>
       <style jsx>{`
@@ -42,45 +48,19 @@ const Form = ({ onEmailSubmit, disabled, onWebauthnSubmit, isLoading }) => {
           flex-flow: column;
           text-align: center;
         }
-        .email-input {
-          padding: 10px;
-          margin: 1rem auto;
-          border: 1px solid #ccc;
-          border-radius: 50px;
-          transition: 0.5s;
-          width: 80%;
-          background-image: url(mail.png);
-          background-size: 18px;
-          background-repeat: no-repeat;
-          background-position: 5% 50%;
-          padding-left: 43px;
+        .form-header {
+          font-size: 22px;
+          margin: 25px 0;
         }
-        .email-input:focus {
-          border: 1px solid #888;
+        .input-wrapper {
+          width: 87%;
+          margin: 0 auto;
         }
         .submit {
           display: flex;
           justify-content: space-between;
-          width: 80%;
-          margin: 0 auto;
-        }
-        .submit > button {
-          padding: 0.6rem 1rem;
-          cursor: pointer;
-          background: #fff;
-          border: 1px solid #ccc;
-          border-radius: 50px;
-          transition: 0.3s;
-          font-size: 13px;
-          background-image: url(airplane.png);
-          background-size: 21px;
-          background-repeat: no-repeat;
-          background-position: 12% 50%;
-          padding-left: 38px;
-          width: 80%;
-        }
-        .submit > button:hover {
-          border-color: #888;
+          width: 87%;
+          margin: 20px auto 0;
         }
       `}</style>
     </>

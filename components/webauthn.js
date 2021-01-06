@@ -1,41 +1,27 @@
 import ReactTooltip from 'react-tooltip';
+import { MonochromeIcons, Icon } from '@magiclabs/ui';
 
-const Webauthn = ({ onSubmit, email, isLoading }) => {
+const Webauthn = ({ onSubmit, email, addToast }) => {
   return (
     <>
-      <button
-        type='submit'
-        data-tip
-        data-for='webauthn-btn'
-        onClick={(e) => {
-          e.preventDefault();
-          email && onSubmit(email);
-        }}
-      >
-        .
-      </button>
+      <div>
+        <Icon
+          type={MonochromeIcons.Fingerprint}
+          size={36}
+          data-tip
+          data-for='webauthn-btn'
+          onClick={(e) => {
+            e.preventDefault();
+            !email ? addToast() : onSubmit(email);
+          }}
+        />
+      </div>
       <ReactTooltip id='webauthn-btn' type='dark' effect='solid' place='bottom'>
         <div>WebAuthn</div>
       </ReactTooltip>
       <style jsx>{`
-        button {
-          padding: 0.6rem 1rem;
+        div {
           cursor: pointer;
-          background: #fff;
-          border: 1px solid #ccc;
-          border-radius: 50px;
-          transition: 0.3s;
-          width: 16%;
-          color: transparent;
-          background-image: ${!isLoading
-            ? 'url(webauthn.png)'
-            : 'url(https://media.tenor.com/images/9da8a7cec33307a43306a32e54fbaca0/tenor.gif)'};
-          background-size: 21px;
-          background-repeat: no-repeat;
-          background-position: 50%;
-        }
-        button:hover {
-          border-color: #888;
         }
       `}</style>
     </>

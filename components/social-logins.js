@@ -1,6 +1,8 @@
+import { useState } from 'react';
+
 const SocialLogins = ({ onSubmit }) => {
   const providers = ['google', 'facebook', 'github'];
-
+  const [isRedirecting, setIsRedirecting] = useState(false);
   return (
     <>
       <div className='or-login-with'>Or login with</div>
@@ -10,7 +12,10 @@ const SocialLogins = ({ onSubmit }) => {
             <button
               type='submit'
               className='social-btn'
-              onClick={() => onSubmit(provider)}
+              onClick={() => {
+                setIsRedirecting(true);
+                onSubmit(provider);
+              }}
               key={provider}
               style={{ backgroundImage: `url(${provider}.png)` }}
             >
@@ -20,7 +25,7 @@ const SocialLogins = ({ onSubmit }) => {
           </div>
         );
       })}
-
+      {isRedirecting && <div className='redirecting'>Redirecting...</div>}
       <style jsx>{`
         .or-login-with {
           margin: 25px 0;
@@ -31,20 +36,25 @@ const SocialLogins = ({ onSubmit }) => {
         .social-btn {
           border-radius: 50px;
           padding: 8px 10px;
-          width: 80%;
+          width: 87%;
           margin-bottom: 20px;
-          font-size: 14px;
-          border: 1px solid #ccc;
+          border: 1px solid #8a8a8a;
           cursor: pointer;
           transition: 0.3s;
           background-color: #fff;
-          background-size: 19px;
+          background-size: 20px;
           background-repeat: no-repeat;
           background-position: 23% 50%;
-          padding-left: 35px;
+          padding: 9px 24px 9px 35px;
+          font-size: 16px;
         }
         .social-btn:hover {
-          border: 1px solid #888;
+          background-color: #f5f5f5;
+        }
+        .redirecting {
+          color: gray;
+          font-size: 12px;
+          margin-bottom: 5px;
         }
       `}</style>
     </>

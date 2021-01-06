@@ -1,5 +1,7 @@
 import Head from 'next/head';
 import Header from './header';
+import { ThemeProvider, ToastProvider } from '@magiclabs/ui';
+import '@magiclabs/ui/main.less';
 
 const Layout = (props) => (
   <>
@@ -9,16 +11,18 @@ const Layout = (props) => (
     </Head>
 
     <Header />
-
     <main>
-      <div className='container'>{props.children}</div>
+      <ThemeProvider root>
+        <ToastProvider position={'top-end'}>
+          <div className='container'>{props.children}</div>
+        </ToastProvider>
+      </ThemeProvider>
     </main>
     <style jsx global>{`
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300&display=swap');
       *,
       *::before,
       *::after {
-        box-sizing: border-box;
         font-family: 'Inter', sans-serif;
         outline: none;
       }
