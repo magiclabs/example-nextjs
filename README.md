@@ -148,9 +148,7 @@ export default async function login(req, res) {
     const metadata = await magic.users.getMetadataByToken(didToken);
     let token = jwt.sign(
       {
-        issuer: metadata.issuer,
-        publicAddress: metadata.publicAddress,
-        email: metadata.email,
+        ...metadata,
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // one week
       },
       process.env.JWT_SECRET
@@ -168,24 +166,21 @@ export default async function login(req, res) {
 To make sessions persist, we rely on the JWT that’s stored in a cookie and automatically sent on each request to our server. The endpoint we check is `/api/user` which verifies the token, then refreshes it on each request. If we didn’t refresh the token, we could run into the scenario where a user logs in, then is browsing our site a week later and gets logged out in the middle of their session because the cookie and token we set had expired.
 
 ```js
-import jwt from 'jsonwebtoken';
-import { setTokenCookie } from '../../lib/cookies';
-
 export default async function user(req, res) {
   try {
     if (!req.cookies.token) return res.json({ user: null });
     let token = req.cookies.token;
     let user = jwt.verify(token, process.env.JWT_SECRET);
+    let { issuer, publicAddress, email } = user;
     let newToken = jwt.sign(
       {
-        issuer: user.issuer,
-        publicAddress: user.publicAddress,
-        email: user.email,
+        issuer,
+        publicAddress,
+        email,
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // one week
       },
       process.env.JWT_SECRET
     );
-    user.token = newToken;
     setTokenCookie(res, newToken);
     res.status(200).json({ user });
   } catch (error) {
