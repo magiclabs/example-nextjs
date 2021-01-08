@@ -63,10 +63,7 @@ const Header = () => {
           margin-left: auto;
         }
         li > a {
-          color: #6851ff;
           text-decoration: none;
-          line-height: 38px;
-          font-size: 17px !important;
         }
       `}</style>
     </header>
