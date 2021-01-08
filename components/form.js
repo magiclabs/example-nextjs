@@ -11,9 +11,14 @@ const Form = ({ onEmailSubmit, disabled, onWebauthnSubmit }) => {
     createToast({ message: 'Invalid email', type: 'error', lifespan: 2000 });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    !email || !validateEmail(email) ? addToast() : onEmailSubmit(email);
+  };
+
   return (
     <>
-      <form>
+      <form onSubmit={handleSubmit}>
         <h3 className='form-header'>Login</h3>
         <div className='input-wrapper'>
           <Input
@@ -31,10 +36,7 @@ const Form = ({ onEmailSubmit, disabled, onWebauthnSubmit }) => {
             color='primary'
             size='sm'
             disabled={disabled}
-            onClick={(e) => {
-              e.preventDefault();
-              !email || !validateEmail(email) ? addToast() : onEmailSubmit(email);
-            }}
+            onClick={handleSubmit}
           >
             Send Magic Link
           </CallToAction>

@@ -1,24 +1,32 @@
-import ReactTooltip from 'react-tooltip';
-import { MonochromeIcons, Icon } from '@magiclabs/ui';
+import { useState } from 'react';
+import { MonochromeIcons, Icon, Tooltip } from '@magiclabs/ui';
 
 const Webauthn = ({ onSubmit, email, addToast }) => {
+  const [show, setShow] = useState(false);
+
   return (
     <>
-      <div>
-        <Icon
-          type={MonochromeIcons.Fingerprint}
-          size={36}
-          data-tip
-          data-for='webauthn-btn'
-          onClick={(e) => {
-            e.preventDefault();
-            !email ? addToast() : onSubmit(email);
-          }}
-        />
-      </div>
-      <ReactTooltip id='webauthn-btn' type='dark' effect='solid' place='bottom'>
+      <Tooltip
+        placement='bottom'
+        anchor={
+          <div onMouseEnter={() => setShow(true)} onMouseLeave={() => setShow(false)}>
+            <Icon
+              type={MonochromeIcons.Fingerprint}
+              size={36}
+              data-tip
+              data-for='webauthn-btn'
+              onClick={(e) => {
+                e.preventDefault();
+                !email ? addToast() : onSubmit(email);
+              }}
+            />
+          </div>
+        }
+        in={show}
+        delay={0}
+      >
         <div>WebAuthn</div>
-      </ReactTooltip>
+      </Tooltip>
       <style jsx>{`
         div {
           cursor: pointer;
