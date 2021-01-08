@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { useUser } from '../lib/hooks';
-import { CallToAction } from '@magiclabs/ui';
+import { CallToAction, TextButton } from '@magiclabs/ui';
 
 const Header = () => {
   const user = useUser();
@@ -10,18 +10,26 @@ const Header = () => {
         <ul>
           <li>
             <Link href='/'>
-              <a>Home</a>
+              <TextButton color='primary' size='sm'>
+                Home
+              </TextButton>
             </Link>
           </li>
           {user ? (
             <>
               <li>
                 <Link href='/profile'>
-                  <a>Profile</a>
+                  <TextButton color='primary' size='sm'>
+                    Profile
+                  </TextButton>
                 </Link>
               </li>
               <li>
-                <a href='/api/logout'>Logout</a>
+                <a href='/api/logout'>
+                  <TextButton color='primary' size='sm'>
+                    Logout
+                  </TextButton>
+                </a>
               </li>
             </>
           ) : (
@@ -49,6 +57,7 @@ const Header = () => {
         }
         li {
           margin-right: 1.5rem;
+          line-height: 38px;
         }
         li:first-child {
           margin-left: auto;
