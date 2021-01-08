@@ -6,10 +6,12 @@ export default async function user(req, res) {
     if (!req.cookies.token) return res.json({ user: null });
     let token = req.cookies.token;
     let user = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(user);
+    let { issuer, publicAddress, email } = user;
     let newToken = jwt.sign(
       {
-        ...user,
+        issuer,
+        publicAddress,
+        email,
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // one week
       },
       process.env.JWT_SECRET
