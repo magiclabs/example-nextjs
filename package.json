@@ -1,5 +1,5 @@
 {
-  "name": "with-magic",
+  "name": "magic-nextjs",
   "scripts": {
     "dev": "next",
     "build": "next build",
@@ -10,10 +10,8 @@
     "@magic-ext/webauthn": "^0.1.0",
     "@magic-sdk/admin": "1.3.0",
     "@magiclabs/ui": "0.6.1",
-    "@zeit/next-less": "^1.0.1",
     "cookie": "0.4.0",
     "jsonwebtoken": "^8.5.1",
-    "less": "^4.0.0",
     "magic-sdk": "^4.0.0",
     "next": "latest",
     "react": "^16.13.1",

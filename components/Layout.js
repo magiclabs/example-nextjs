@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Header from './header';
 import { ThemeProvider, ToastProvider } from '@magiclabs/ui';
-import '@magiclabs/ui/main.less';
+import '@magiclabs/ui/dist/cjs/index.css';
 
 const Layout = (props) => (
   <>

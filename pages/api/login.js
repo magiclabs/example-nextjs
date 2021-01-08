@@ -9,9 +9,7 @@ export default async function login(req, res) {
     const metadata = await magic.users.getMetadataByToken(didToken);
     let token = jwt.sign(
       {
-        issuer: metadata.issuer,
-        publicAddress: metadata.publicAddress,
-        email: metadata.email,
+        ...metadata,
         exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7, // one week
       },
       process.env.JWT_SECRET
