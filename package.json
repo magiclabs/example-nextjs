@@ -1,22 +1,27 @@
 {
-  "name": "with-magic",
+  "name": "magic-nextjs",
   "scripts": {
     "dev": "next",
     "build": "next build",
     "start": "next start"
   },
   "dependencies": {
-    "magic-sdk": "^4.0.0",
     "@magic-ext/oauth": "^0.7.0",
     "@magic-ext/webauthn": "^0.1.0",
     "@magic-sdk/admin": "1.3.0",
+    "@magiclabs/ui": "0.6.1",
     "cookie": "0.4.0",
     "jsonwebtoken": "^8.5.1",
+    "magic-sdk": "^4.0.0",
     "next": "latest",
-    "react": "latest",
-    "react-dom": "latest",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "react-tooltip": "^4.2.11",
     "swr": "0.1.16"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "framer-motion": "^2.3.0",
+    "rxjs": "^6.6.2"
+  }
 }

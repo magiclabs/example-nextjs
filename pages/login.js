@@ -11,7 +11,6 @@ import SocialLogins from '../components/social-logins';
 const Login = () => {
   useUser({ redirectTo: '/', redirectIfFound: true });
   const [magic, setMagic] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [disabled, setDisabled] = useState(false);
 
   useEffect(() => {
@@ -49,12 +48,10 @@ const Login = () => {
   async function handleLoginWithWebauthn(email) {
     try {
       let didToken = await magic.webauthn.login({ username: email });
-      setIsLoading(true);
       await authenticateWithServer(didToken);
     } catch (error) {
       try {
         let didToken = await magic.webauthn.registerNewUser({ username: email });
-        setIsLoading(true);
         await authenticateWithServer(didToken);
       } catch (err) {
         alert(
@@ -83,7 +80,6 @@ const Login = () => {
           disabled={disabled}
           onEmailSubmit={handleLoginWithEmail}
           onWebauthnSubmit={handleLoginWithWebauthn}
-          isLoading={isLoading}
         />
         <SocialLogins onSubmit={handleLoginWithSocial} />
       </div>
@@ -92,9 +88,11 @@ const Login = () => {
           max-width: 20rem;
           margin: 40px auto 0;
           padding: 1rem;
-          border: 1px solid #ccc;
+          border: 1px solid #dfe1e5;
           border-radius: 4px;
           text-align: center;
+          box-shadow: 0px 0px 6px 6px #f7f7f7;
+          box-sizing: border-box;
         }
       `}</style>
     </Layout>
