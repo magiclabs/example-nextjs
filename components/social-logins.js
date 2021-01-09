@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 const SocialLogins = ({ onSubmit }) => {
-  const providers = ['google', 'facebook', 'github'];
+  const providers = ['apple', 'google', 'facebook', 'github'];
   const [isRedirecting, setIsRedirecting] = useState(false);
   return (
     <>
