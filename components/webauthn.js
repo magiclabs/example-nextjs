@@ -13,8 +13,6 @@ const Webauthn = ({ onSubmit, email, addToast }) => {
             <Icon
               type={MonochromeIcons.Fingerprint}
               size={36}
-              data-tip
-              data-for='webauthn-btn'
               onClick={(e) => {
                 e.preventDefault();
                 !email ? addToast() : onSubmit(email);
