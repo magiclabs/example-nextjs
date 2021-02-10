@@ -18,7 +18,7 @@ const Callback = () => {
         })
       );
     /* if `provider` is in our query params, the user is logging in with a social provider */
-    magic && router.query.provider ? finishSocialLogin() : finishEmailRedirectLogin();
+    magic && (router.query.provider ? finishSocialLogin() : finishEmailRedirectLogin());
   }, [magic, router.query]);
 
   const finishSocialLogin = async () => {
