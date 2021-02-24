@@ -1,52 +1,31 @@
-import { useState, useEffect } from 'react';
-import { Magic } from 'magic-sdk';
-import { OAuthExtension } from '@magic-ext/oauth';
+import { useEffect, useContext } from 'react';
 import Router, { useRouter } from 'next/router';
-import Layout from '../components/layout';
+import { magic } from '../lib/magic';
+import { UserContext } from '../lib/UserContext';
+import Loading from '../components/loading';
 
 const Callback = () => {
-  const [magic, setMagic] = useState(null);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [showValidatingToken, setShowValidatingToken] = useState(false);
   const router = useRouter();
+  const [user, setUser] = useContext(UserContext);
 
+  // The redirect contains a `provider` query param if the user is logging in with a social provider
   useEffect(() => {
-    !magic &&
-      setMagic(
-        new Magic(process.env.NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY, {
-          extensions: [new OAuthExtension()],
-        })
-      );
-    /* if `provider` is in our query params, the user is logging in with a social provider */
-    magic && router.query.provider ? finishSocialLogin() : finishEmailRedirectLogin();
-  }, [magic, router.query]);
+    router.query.provider ? finishSocialLogin() : finishEmailRedirectLogin();
+  }, [router.query]);
 
+  // `getRedirectResult()` returns an object with user data from Magic and the social provider
   const finishSocialLogin = async () => {
-    try {
-      let {
-        magic: { idToken },
-      } = await magic.oauth.getRedirectResult();
-      setShowValidatingToken(true);
-      await authenticateWithServer(idToken);
-    } catch (error) {
-      console.log(error);
-      setErrorMsg('Error logging in. Please try again.');
-    }
+    let result = await magic.oauth.getRedirectResult();
+    authenticateWithServer(result.magic.idToken);
   };
 
-  const finishEmailRedirectLogin = async () => {
-    if (router.query.magic_credential) {
-      try {
-        let didToken = await magic.auth.loginWithCredential();
-        setShowValidatingToken(true);
-        await authenticateWithServer(didToken);
-      } catch (error) {
-        console.log(error);
-        setErrorMsg('Error logging in. Please try again.');
-      }
-    }
+  // `loginWithCredential()` returns a didToken for the user logging in
+  const finishEmailRedirectLogin = () => {
+    if (router.query.magic_credential)
+      magic.auth.loginWithCredential().then((didToken) => authenticateWithServer(didToken));
   };
 
+  // Send token to server to validate
   const authenticateWithServer = async (didToken) => {
     let res = await fetch('/api/login', {
       method: 'POST',
@@ -55,35 +34,16 @@ const Callback = () => {
         Authorization: 'Bearer ' + didToken,
       },
     });
-    res.status === 200 && Router.push('/');
+
+    if (res.status === 200) {
+      // Set the UserContext to the now logged in user
+      let userMetadata = await magic.user.getMetadata();
+      await setUser(userMetadata);
+      Router.push('/profile');
+    }
   };
 
-  return (
-    <Layout>
-      {errorMsg ? (
-        <div className='error'>{errorMsg}</div>
-      ) : (
-        <div className='callback-container'>
-          <div className='auth-step'>Retrieving auth token...</div>
-          {showValidatingToken && <div className='auth-step'>Validating token...</div>}
-        </div>
-      )}
-
-      <style jsx>{`
-        .callback-container {
-          width: 100%;
-          text-align: center;
-        }
-        .auth-step {
-          margin: 30px 0;
-          font-size: 17px;
-        }
-        .error {
-          color: red;
-        }
-      `}</style>
-    </Layout>
-  );
+  return <Loading />;
 };
 
 export default Callback;

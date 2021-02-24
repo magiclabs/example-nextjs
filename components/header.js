@@ -1,22 +1,36 @@
+import { useContext } from 'react';
 import Link from 'next/link';
-import { useUser } from '../lib/hooks';
+import Router from 'next/router';
+import { magic } from '../lib/magic';
+import { UserContext } from '../lib/UserContext';
 import { CallToAction, TextButton } from '@magiclabs/ui';
 
 const Header = () => {
-  const user = useUser();
+  const [user, setUser] = useContext(UserContext);
+
+  const logout = () => {
+    magic.user.logout().then(() => {
+      setUser({ user: null });
+      Router.push('/login');
+    });
+  };
+
   return (
     <header>
       <nav>
         <ul>
-          <li>
-            <Link href='/'>
-              <TextButton color='primary' size='sm'>
-                Home
-              </TextButton>
-            </Link>
-          </li>
-          {user ? (
+          {user?.loading ? (
+            // If loading, don't display any buttons specific to the loggedIn state
+            <div style={{ height: '38px' }}></div>
+          ) : user?.issuer ? (
             <>
+              <li>
+                <Link href='/'>
+                  <TextButton color='primary' size='sm'>
+                    Home
+                  </TextButton>
+                </Link>
+              </li>
               <li>
                 <Link href='/profile'>
                   <TextButton color='primary' size='sm'>
@@ -25,8 +39,8 @@ const Header = () => {
                 </Link>
               </li>
               <li>
-                <a href='/api/logout'>
-                  <TextButton color='primary' size='sm'>
+                <a>
+                  <TextButton color='warning' size='sm' onPress={logout}>
                     Logout
                   </TextButton>
                 </a>
@@ -49,7 +63,6 @@ const Header = () => {
           margin: 0 auto 50px;
           padding: 1.25rem 1.25rem;
           border-bottom: 1px solid #f0f0f0;
-          box-sizing: border-box;
         }
         ul {
           display: flex;
@@ -61,9 +74,6 @@ const Header = () => {
         }
         li:first-child {
           margin-left: auto;
-        }
-        li > a {
-          text-decoration: none;
         }
       `}</style>
     </header>
