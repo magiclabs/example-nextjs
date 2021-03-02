@@ -1,15 +1,9 @@
-import { useEffect, useContext } from 'react';
-import Router from 'next/router';
+import { useContext } from 'react';
 import { UserContext } from '../lib/UserContext';
 import Loading from '../components/loading';
 
 const Profile = () => {
   const [user] = useContext(UserContext);
-
-  // Redirect to /login if not loading and no user found
-  useEffect(() => {
-    user && !user.loading && !user.issuer && Router.push('/login');
-  }, [user]);
 
   return (
     <>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { UserContext } from '../lib/UserContext';
+import Router from 'next/router';
 import { magic } from '../lib/magic';
 import Layout from '../components/layout';
 import { ThemeProvider } from '@magiclabs/ui';
@@ -9,13 +10,16 @@ function MyApp({ Component, pageProps }) {
   const [user, setUser] = useState();
 
   // If isLoggedIn is true, set the UserContext with user data
-  // Otherwise, set it to {user: null}
+  // Otherwise, redirect to /login and set UserContext to { user: null }
   useEffect(() => {
     setUser({ loading: true });
     magic.user.isLoggedIn().then((isLoggedIn) => {
-      return isLoggedIn
-        ? magic.user.getMetadata().then((userData) => setUser(userData))
-        : setUser({ user: null });
+      if (isLoggedIn) {
+        magic.user.getMetadata().then((userData) => setUser(userData));
+      } else {
+        Router.push('/login');
+        setUser({ user: null });
+      }
     });
   }, []);
 
