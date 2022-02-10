@@ -15,8 +15,8 @@ $ yarn dev // starts app in http://localhost:3000
 ## Environment Variables
 
 ```
-NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY=pk_test_1234567890
-MAGIC_SECRET_KEY=sk_test_1234567890
+NEXT_PUBLIC_MAGIC_PUBLISHABLE_KEY=pk_live_123...
+MAGIC_SECRET_KEY=sk_live_123...
 ```
 
 # Introduction
