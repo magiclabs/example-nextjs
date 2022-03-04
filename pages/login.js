@@ -4,17 +4,32 @@ import { magic } from '../lib/magic';
 import { UserContext } from '../lib/UserContext';
 import EmailForm from '../components/email-form';
 import SocialLogins from '../components/social-logins';
+import { PrismaClient, UserCreateInput } from "@prisma/client"
+
+// const prisma = new PrismaClient()
 
 const Login = () => {
   const [disabled, setDisabled] = useState(false);
   const [user, setUser] = useContext(UserContext);
+
+  console.log('user', user)
+
 
   // Redirec to /profile if the user is logged in
   useEffect(() => {
     user?.issuer && Router.push('/profile');
   }, [user]);
 
+ 
+
+
   async function handleLoginWithEmail(email) {
+
+    // const result = await prisma.user.findUnique({
+    //   where:
+    // })
+
+
     try {
       setDisabled(true); // disable login button to prevent multiple emails from being triggered
 
@@ -45,17 +60,17 @@ const Login = () => {
     }
   }
 
-  async function handleLoginWithSocial(provider) {
-    await magic.oauth.loginWithRedirect({
-      provider, // google, apple, etc
-      redirectURI: new URL('/callback', window.location.origin).href, // required redirect to finish social login
-    });
-  }
+  // async function handleLoginWithSocial(provider) {
+  //   await magic.oauth.loginWithRedirect({
+  //     provider, // google, apple, etc
+  //     redirectURI: new URL('/callback', window.location.origin).href, // required redirect to finish social login
+  //   });
+  // }
 
   return (
     <div className='login'>
       <EmailForm disabled={disabled} onEmailSubmit={handleLoginWithEmail} />
-      <SocialLogins onSubmit={handleLoginWithSocial} />
+      {/* <SocialLogins onSubmit={handleLoginWithSocial} /> */}
       <style jsx>{`
         .login {
           max-width: 20rem;
