@@ -5,6 +5,7 @@ import Loading from '../components/loading';
 const Profile = () => {
   const [user] = useContext(UserContext);
 
+  
   return (
     <>
       {user?.loading ? (
